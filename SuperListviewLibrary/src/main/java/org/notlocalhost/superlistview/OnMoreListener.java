@@ -1,4 +1,4 @@
-package com.quentindommerc.superlistview;
+package org.notlocalhost.superlistview;
 
 /**
  * Created by kentin on 24/04/14.

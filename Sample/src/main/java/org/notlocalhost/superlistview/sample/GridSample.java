@@ -1,4 +1,4 @@
-package com.quentindommerc.superlistview.sample;
+package org.notlocalhost.superlistview.sample;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -8,9 +8,9 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
-import com.quentindommerc.superlistview.OnMoreListener;
-import com.quentindommerc.superlistview.SuperGridview;
-import com.quentindommerc.superlistview.SuperListview;
+import org.notlocalhost.superlistview.OnMoreListener;
+import org.notlocalhost.superlistview.SuperGridview;
+import org.notlocalhost.superlistview.SuperListview;
 
 import java.util.ArrayList;
 

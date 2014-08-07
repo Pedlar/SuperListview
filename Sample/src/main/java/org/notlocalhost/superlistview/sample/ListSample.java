@@ -1,4 +1,4 @@
-package com.quentindommerc.superlistview.sample;
+package org.notlocalhost.superlistview.sample;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -8,10 +8,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.quentindommerc.superlistview.OnMoreListener;
-import com.quentindommerc.superlistview.SuperGridview;
-import com.quentindommerc.superlistview.SuperListview;
-import com.quentindommerc.superlistview.SwipeDismissListViewTouchListener;
+import org.notlocalhost.superlistview.OnMoreListener;
+import org.notlocalhost.superlistview.SuperGridview;
+import org.notlocalhost.superlistview.SuperListview;
+import org.notlocalhost.superlistview.SwipeDismissListViewTouchListener;
 
 import java.util.ArrayList;
 

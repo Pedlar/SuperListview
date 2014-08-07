@@ -1,4 +1,4 @@
-package com.quentindommerc.superlistview;
+package org.notlocalhost.superlistview;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.GridView;
 
 import android.widget.ListAdapter;
-import com.quentindommerc.superlistview.superlistview.R;
+import org.notlocalhost.superlistview.R;
 
 
 /**

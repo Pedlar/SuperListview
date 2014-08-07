@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.quentindommerc.superlistview;
+package org.notlocalhost.superlistview;
 
 import android.graphics.Rect;
 import android.os.SystemClock;

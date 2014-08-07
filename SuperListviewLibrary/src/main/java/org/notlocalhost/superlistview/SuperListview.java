@@ -1,14 +1,12 @@
-package com.quentindommerc.superlistview;
+package org.notlocalhost.superlistview;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import com.quentindommerc.superlistview.superlistview.R;
 
 
 /**
