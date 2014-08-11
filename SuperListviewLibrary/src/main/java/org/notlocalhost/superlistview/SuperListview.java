@@ -8,7 +8,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-
 /**
  * Created by kentin on 24/04/14.
  */

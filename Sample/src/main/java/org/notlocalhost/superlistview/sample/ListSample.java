@@ -3,23 +3,63 @@ package org.notlocalhost.superlistview.sample;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.widget.SwipeRefreshLayout;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import org.notlocalhost.superlistview.BaseSuperAbsListview;
 import org.notlocalhost.superlistview.OnMoreListener;
 import org.notlocalhost.superlistview.SuperGridview;
 import org.notlocalhost.superlistview.SuperListview;
 import org.notlocalhost.superlistview.SwipeDismissListViewTouchListener;
+import org.notlocalhost.superlistview.widget.SwipeHeaderView;
+import org.notlocalhost.superlistview.widget.SwipeRefreshLayout;
 
 import java.util.ArrayList;
 
+/*
+TODO -
+ 1. Write a test for this activity, so we can test the library functionality.
+ */
+public class ListSample extends Activity implements
+        SwipeRefreshLayout.OnRefreshListener, OnMoreListener, View.OnClickListener {
 
-public class ListSample extends Activity implements SwipeRefreshLayout.OnRefreshListener, OnMoreListener {
-
-    private SuperListview mList;
+    private static final int LIST = 0;
+    private static final int GRID = 1;
+    private BaseSuperAbsListview mList;
     private ArrayAdapter<String> mAdapter;
+    private int mListType = LIST;
+
+    private void setupListBasedOnConfig() {
+        RadioGroup configHeaderType = (RadioGroup)findViewById(R.id.config_header_type);
+        switch(configHeaderType.getCheckedRadioButtonId()) {
+            case R.id.default_type:
+                mList.setHeaderType(SwipeHeaderView.SwipeHeaderType.DEFAULT);
+                break;
+            case R.id.spinner_type:
+                mList.setHeaderType(SwipeHeaderView.SwipeHeaderType.SPINNER);
+                break;
+            case R.id.spinner_text_type:
+                mList.setHeaderType(SwipeHeaderView.SwipeHeaderType.SPINNER_WITH_TEXT);
+                mList.setHeaderText(R.string.pull_to_refresh);
+                break;
+            case R.id.arrow_type:
+                mList.setHeaderType(SwipeHeaderView.SwipeHeaderType.ARROW);
+                break;
+        }
+
+        RadioGroup configHeaderFlags = (RadioGroup)findViewById(R.id.config_header_flags);
+        switch(configHeaderFlags.getCheckedRadioButtonId()) {
+            case R.id.flag_expand:
+                mList.setHeaderFlags(SwipeHeaderView.FLAG_EXPAND);
+                break;
+            case R.id.flag_slide_in:
+                mList.setHeaderFlags(SwipeHeaderView.FLAG_SLIDE_IN);
+                break;
+        }
+    }
 
     @SuppressWarnings("ResourceAsColor")
     @Override
@@ -27,14 +67,36 @@ public class ListSample extends Activity implements SwipeRefreshLayout.OnRefresh
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_sample);
 
-        // Empty list view demo, just pull to add more items
         ArrayList<String> lst = new ArrayList<String>();
         mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, lst);
 
+        findViewById(R.id.show_list).setOnClickListener(this);
+        findViewById(R.id.show_grid).setOnClickListener(this);
+    }
 
-        // This is what you're looking for
+    private void setupListView() {
+        mListType = LIST;
         mList = (SuperListview)findViewById(R.id.list);
+        setupView();
+        ((SuperListview)mList).setupSwipeToDismiss(new SwipeDismissListViewTouchListener.DismissCallbacks() {
+            @Override
+            public boolean canDismiss(int position) {
+                return true;
+            }
 
+            @Override
+            public void onDismiss(ListView listView, int[] reverseSortedPositions) {
+            }
+        }, true);
+    }
+
+    private void setupGridView() {
+        mListType = GRID;
+        mList = (SuperGridview) findViewById(R.id.grid);
+        setupView();
+    }
+
+    private void setupView() {
         Thread thread = new Thread( new Runnable() {
             @Override
             public void run() {
@@ -67,17 +129,6 @@ public class ListSample extends Activity implements SwipeRefreshLayout.OnRefresh
 
         // I want to get loadMore triggered if I see the last item (1)
         mList.setupMoreListener(this, 1);
-
-        mList.setupSwipeToDismiss(new SwipeDismissListViewTouchListener.DismissCallbacks() {
-            @Override
-            public boolean canDismiss(int position) {
-                return true;
-            }
-
-            @Override
-            public void onDismiss(ListView listView, int[] reverseSortedPositions) {
-            }
-        }, true);
     }
 
     @Override
@@ -94,8 +145,6 @@ public class ListSample extends Activity implements SwipeRefreshLayout.OnRefresh
 
             }
         }, 2000);
-
-
     }
 
     @Override
@@ -105,5 +154,37 @@ public class ListSample extends Activity implements SwipeRefreshLayout.OnRefresh
 
         //demo purpose, adding to the bottom
         mAdapter.add("More asked, more served");
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(mList != null && mList.getVisibility() == View.VISIBLE) {
+            mList.setVisibility(View.GONE);
+            mAdapter.clear();
+            findViewById(R.id.config_layout).setVisibility(View.VISIBLE);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        boolean showList = false;
+        switch(v.getId()) {
+            case R.id.show_list:
+                setupListView();
+                showList = true;
+                break;
+            case R.id.show_grid:
+                setupGridView();
+                showList = true;
+                break;
+        }
+
+        if(showList) {
+            setupListBasedOnConfig();
+            findViewById(R.id.config_layout).setVisibility(View.GONE);
+            mList.setVisibility(View.VISIBLE);
+        }
     }
 }

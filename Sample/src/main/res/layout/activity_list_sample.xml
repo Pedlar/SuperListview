@@ -2,16 +2,149 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-    <com.quentindommerc.superlistview.SuperListview
-            xmlns:superlistview="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            superlistview:superlv__listClipToPadding="false"
-            superlistview:superlv__listDivider="@android:color/transparent"
-            superlistview:superlv__listDividerHeight="10dp"
-            superlistview:superlv__empty="@layout/emptyview"
-            superlistview:superlv__moreProgress="@layout/view_more_progress"
-            superlistview:superlv__scrollbarStyle="outsideOverlay" >
-    </com.quentindommerc.superlistview.SuperListview>
+    <LinearLayout
+        android:id="@+id/config_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/config_row_1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <LinearLayout
+                android:layout_weight="1"
+                android:id="@+id/config_row_1_col_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="Header Style:"
+                    android:textAppearance="@android:style/TextAppearance.Large" />
+
+                <RadioGroup
+                    android:id="@+id/config_header_type"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:checkedButton="@+id/default_type">
+
+                    <RadioButton
+                        android:id="@+id/default_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Default" />
+
+                    <RadioButton
+                        android:id="@+id/spinner_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Spinner" />
+
+                    <RadioButton
+                        android:id="@+id/spinner_text_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Spinner With Text" />
+
+                    <RadioButton
+                        android:id="@+id/arrow_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Arrow Image" />
+                </RadioGroup>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_weight="1"
+                android:id="@+id/config_row_1_col_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="Header Flags:"
+                    android:textAppearance="@android:style/TextAppearance.Large" />
+
+                <RadioGroup
+                    android:id="@+id/config_header_flags"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkedButton="@+id/flag_expand">
+
+                    <RadioButton
+                        android:id="@+id/flag_expand"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Expand (Default)" />
+
+                    <RadioButton
+                        android:id="@+id/flag_slide_in"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Slide In" />
+                </RadioGroup>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:paddingTop="90dp"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+            <Button
+                android:id="@+id/show_list"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Show List"/>
+            <Button
+                android:id="@+id/show_grid"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Show Grid"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <org.notlocalhost.superlistview.SuperListview
+        android:visibility="gone"
+        xmlns:superlistview="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        superlistview:superlv__listClipToPadding="false"
+        superlistview:superlv__listDivider="@android:color/transparent"
+        superlistview:superlv__listDividerHeight="10dp"
+        superlistview:superlv__empty="@layout/emptyview"
+        superlistview:superlv__moreProgress="@layout/view_more_progress"
+        superlistview:superlv__scrollbarStyle="outsideOverlay" >
+    </org.notlocalhost.superlistview.SuperListview>
+
+    <org.notlocalhost.superlistview.SuperGridview
+        android:visibility="gone"
+        xmlns:superlistview="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/grid"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        superlistview:superlv__listClipToPadding="false"
+        superlistview:superlv__listDivider="@android:color/transparent"
+        superlistview:superlv__listDividerHeight="10dp"
+        superlistview:superlv__listPadding="10dp"
+        superlistview:superlv__empty="@layout/emptyview"
+        superlistview:supergv__columns="2"
+        superlistview:supergv__verticalSpacing="10dp"
+        superlistview:supergv__horizontalSpacing="10dp"
+        superlistview:superlv__scrollbarStyle="outsideOverlay" >
+    </org.notlocalhost.superlistview.SuperGridview>
 </RelativeLayout>

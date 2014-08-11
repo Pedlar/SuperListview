@@ -1,11 +1,11 @@
 package org.notlocalhost.superlistview;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.database.DataSetObserver;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +14,9 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ListAdapter;
+
+import org.notlocalhost.superlistview.widget.SwipeHeaderView;
+import org.notlocalhost.superlistview.widget.SwipeRefreshLayout;
 
 
 /**
@@ -315,5 +318,26 @@ public abstract class BaseSuperAbsListview extends FrameLayout implements AbsLis
 
     public void setOnTouchListener(OnTouchListener listener) {
         mList.setOnTouchListener(listener);
+    }
+
+    public void setHeaderType(SwipeHeaderView.SwipeHeaderType type) {
+        if(mPtrLayout != null) {
+            mPtrLayout.setHeaderType(type);
+        }
+    }
+    public void setHeaderText(int resId) {
+        if(mPtrLayout != null) {
+            mPtrLayout.setHeaderText(resId);
+        }
+    }
+    public void setHeaderText(String text) {
+        if(mPtrLayout != null) {
+            mPtrLayout.setHeaderText(text);
+        }
+    }
+    public void setHeaderFlags(int flags) {
+        if(mPtrLayout != null) {
+            mPtrLayout.setHeaderFlags(flags);
+        }
     }
 }
