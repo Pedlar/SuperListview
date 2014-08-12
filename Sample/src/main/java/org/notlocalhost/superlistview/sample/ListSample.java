@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -48,16 +49,24 @@ public class ListSample extends Activity implements
             case R.id.arrow_type:
                 mList.setHeaderType(SwipeHeaderView.SwipeHeaderType.ARROW);
                 break;
+            case R.id.arrow_text_type:
+                mList.setHeaderType(SwipeHeaderView.SwipeHeaderType.ARROW_WITH_TEXT);
+                break;
         }
 
+        // Remove all flags first
+        mList.setHeaderFlags();
         RadioGroup configHeaderFlags = (RadioGroup)findViewById(R.id.config_header_flags);
         switch(configHeaderFlags.getCheckedRadioButtonId()) {
             case R.id.flag_expand:
-                mList.setHeaderFlags(SwipeHeaderView.FLAG_EXPAND);
+                mList.setHeaderFlags(SwipeHeaderView.HeaderFlags.FLAG_EXPAND);
                 break;
             case R.id.flag_slide_in:
-                mList.setHeaderFlags(SwipeHeaderView.FLAG_SLIDE_IN);
+                mList.setHeaderFlags(SwipeHeaderView.HeaderFlags.FLAG_SLIDE_IN);
                 break;
+        }
+        if(((CheckBox)findViewById(R.id.flag_animate_arrow)).isChecked()) {
+            mList.setHeaderFlags(SwipeHeaderView.HeaderFlags.FLAG_ANIMATE_ARROW);
         }
     }
 

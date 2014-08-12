@@ -58,6 +58,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Arrow Image" />
+
+                    <RadioButton
+                        android:id="@+id/arrow_text_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Arrow With Text"/>
                 </RadioGroup>
             </LinearLayout>
 
@@ -93,6 +99,12 @@
                         android:layout_height="wrap_content"
                         android:text="Slide In" />
                 </RadioGroup>
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/flag_animate_arrow"
+                    android:text="Animate Arrow"
+                    android:checked="true"/>
             </LinearLayout>
         </LinearLayout>
 

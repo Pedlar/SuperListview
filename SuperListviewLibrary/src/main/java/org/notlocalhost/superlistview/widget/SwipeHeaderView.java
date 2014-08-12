@@ -25,16 +25,15 @@ import com.nineoldandroids.animation.ValueAnimator;
 
 import org.notlocalhost.superlistview.R;
 
+import java.util.Arrays;
+import java.util.EnumSet;
+
 /**
  * Custom header view for showing a pull down heading above the list.
  */
 public final class SwipeHeaderView {
-    public static final int FLAG_SLIDE_IN = 0x100000;
-    public static final int FLAG_EXPAND = 0x20000;
-    public static final int FLAG_ANIMATE_ARROW = 0x30000;
 
     private final Paint mPaint = new Paint();
-    private float mTriggerPercentage;
     private View mParent;
     private View mRefreshHeader;
     private Rect mBounds = new Rect();
@@ -46,8 +45,6 @@ public final class SwipeHeaderView {
     private TextView mProgressArrowTextView;
 
     private SwipeHeaderType mHeaderType = SwipeHeaderType.SPINNER;
-
-    private int mFlags = FLAG_EXPAND;
 
     private ValueAnimator mSpinAnimation;
     private Interpolator mInterpolator;
@@ -149,6 +146,11 @@ public final class SwipeHeaderView {
         }
     }
 
+    public static enum HeaderFlags {
+        FLAG_SLIDE_IN, FLAG_EXPAND, FLAG_ANIMATE_ARROW
+    }
+    EnumSet<HeaderFlags> mHeaderFlags = EnumSet.of(HeaderFlags.FLAG_EXPAND);
+
     private boolean hasSpinnerAndNotNull(SwipeHeaderType type) {
         return type.isSpinner() && mProgressSpinner != null;
     }
@@ -216,13 +218,14 @@ public final class SwipeHeaderView {
      * gesture. and use this value to update the percentage of the trigger that
      * is shown.
      */
-    void setTriggerPercentage(float triggerPercentage) {
-        mTriggerPercentage = triggerPercentage;
+    void setTriggerPercentage(float interpolatedPercent, float realPercent) {
+        Log.d("SwipeView", "interpolated: " + interpolatedPercent + " real: " + realPercent);
         ViewCompat.postInvalidateOnAnimation(mParent);
         if(hasSpinnerAndNotNull(mHeaderType)) {
-            ViewCompat.setRotation(mProgressSpinner, triggerPercentage * 360);
-        } else if(hasArrowAndNotNull(mHeaderType)) {
-            if(mTriggerPercentage > .50
+            ViewCompat.setRotation(mProgressSpinner, interpolatedPercent * 360);
+        } else if(hasArrowAndNotNull(mHeaderType)
+                && mHeaderFlags.contains(HeaderFlags.FLAG_ANIMATE_ARROW)) {
+            if(realPercent > .50
                     && !mAllowRefresh) {
                 mAllowRefresh = true;
                 if(mSpinAnimation != null && mSpinAnimation.isRunning()) {
@@ -233,7 +236,7 @@ public final class SwipeHeaderView {
                 if(mProgressSpinnerTextView != null) {
                     mProgressSpinnerTextView.setText("Pull to refresh..");
                 }
-            } else if(mTriggerPercentage < .50
+            } else if(realPercent < .50
                     && mAllowRefresh){
                 mAllowRefresh = false;
                 if(mSpinAnimation != null && mSpinAnimation.isRunning()) {
@@ -253,8 +256,8 @@ public final class SwipeHeaderView {
             int restoreCount = canvas.save();
             canvas.clipRect(mBounds);
 
-            int layoutHeight = (mFlags & FLAG_EXPAND) == FLAG_EXPAND ? mHeaderOffset
-                    : (mFlags & FLAG_SLIDE_IN) == FLAG_SLIDE_IN ? mBounds.height()
+            int layoutHeight = mHeaderFlags.contains(HeaderFlags.FLAG_EXPAND) ? mHeaderOffset
+                    : mHeaderFlags.contains(HeaderFlags.FLAG_SLIDE_IN) ? mBounds.height()
                     : 0;
 
             Rect rect = new Rect();
@@ -277,8 +280,8 @@ public final class SwipeHeaderView {
             mRefreshHeader.layout(0, 0, mBounds.width(), layoutHeight);
 
             canvas.save();
-            int translateX = (mFlags & FLAG_EXPAND) == FLAG_EXPAND ? 0
-                    : (mFlags & FLAG_SLIDE_IN) == FLAG_SLIDE_IN ? -(mBounds.bottom - rect.bottom)
+            int translateX = mHeaderFlags.contains(HeaderFlags.FLAG_EXPAND) ? 0
+                    : mHeaderFlags.contains(HeaderFlags.FLAG_SLIDE_IN) ? -(mBounds.bottom - rect.bottom)
                     : 0;
 
             canvas.translate(rect.left, translateX);
@@ -315,8 +318,13 @@ public final class SwipeHeaderView {
         initHeaderLayout(mParent);
     }
 
-    public void setHeaderFlags(int flags) {
-        mFlags = flags;
+    public void setHeaderFlags(HeaderFlags... flags) {
+        if(flags == null || flags.length == 0) {
+            mHeaderFlags.clear();
+            mHeaderFlags.add(HeaderFlags.FLAG_EXPAND);
+            return;
+        }
+        mHeaderFlags.addAll(Arrays.asList(flags));
     }
 
     public boolean allowOverscroll() {

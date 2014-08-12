@@ -335,7 +335,7 @@ public abstract class BaseSuperAbsListview extends FrameLayout implements AbsLis
             mPtrLayout.setHeaderText(text);
         }
     }
-    public void setHeaderFlags(int flags) {
+    public void setHeaderFlags(SwipeHeaderView.HeaderFlags... flags) {
         if(mPtrLayout != null) {
             mPtrLayout.setHeaderFlags(flags);
         }

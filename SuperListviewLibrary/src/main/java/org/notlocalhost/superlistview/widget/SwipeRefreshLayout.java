@@ -119,8 +119,9 @@ public class SwipeRefreshLayout extends ViewGroup {
         @Override
         public void applyTransformation(float interpolatedTime, Transformation t) {
             float percent = mFromPercentage + ((0 - mFromPercentage) * interpolatedTime);
+            float realPercent = mFromPercentage + ((0 - mFromPercentage));
             mProgressBar.setTriggerPercentage(percent);
-            mHeaderView.setTriggerPercentage(percent);
+            mHeaderView.setTriggerPercentage(percent, realPercent);
         }
     };
 
@@ -239,16 +240,16 @@ public class SwipeRefreshLayout extends ViewGroup {
         mListener = listener;
     }
 
-    private void setTriggerPercentage(float percent) {
-        if (percent == 0f) {
+    private void setTriggerPercentage(float interpolatedPercent, float realPercent) {
+        if (interpolatedPercent == 0f) {
             // No-op. A null trigger means it's uninitialized, and setting it to zero-percent
             // means we're trying to reset state, so there's nothing to reset in this case.
             mCurrPercentage = 0;
             return;
         }
-        mCurrPercentage = percent;
-        mProgressBar.setTriggerPercentage(percent);
-        mHeaderView.setTriggerPercentage(percent);
+        mCurrPercentage = interpolatedPercent;
+        mProgressBar.setTriggerPercentage(interpolatedPercent);
+        mHeaderView.setTriggerPercentage(interpolatedPercent, realPercent);
     }
 
     private void setHeaderOffset(int offset) {
@@ -435,9 +436,10 @@ public class SwipeRefreshLayout extends ViewGroup {
                             break;
                         } else {
                             // Just track the user's movement
+                            float distance = yDiff / mDistanceToTriggerSync;
                             setTriggerPercentage(
                                     mAccelerateInterpolator.getInterpolation(
-                                            yDiff / mDistanceToTriggerSync));
+                                            distance), distance);
 
                             float offsetTop = yDiff;
                             if (mPrevY > eventY) {
@@ -553,7 +555,7 @@ public class SwipeRefreshLayout extends ViewGroup {
             mHeaderView.setHeaderText(text);
         }
     }
-    public void setHeaderFlags(int flags) {
+    public void setHeaderFlags(SwipeHeaderView.HeaderFlags... flags) {
         if(mHeaderView != null) {
             mHeaderView.setHeaderFlags(flags);
         }
