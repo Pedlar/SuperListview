@@ -20,6 +20,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.nineoldandroids.animation.Animator;
+import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.animation.ValueAnimator;
 
 import org.notlocalhost.superlistview.R;
@@ -48,43 +49,54 @@ public final class SwipeHeaderView {
     private int mFlags = FLAG_EXPAND;
 
     private ValueAnimator mSpinAnimation;
-    private boolean mHasAnimation = false;
     private Interpolator mInterpolator;
 
     private boolean mAnimationRunning = false;
-
-    private float spinAmount = 1.0f;
+    private boolean mAllowRefresh = false;
 
     private void initAnimation() {
-        mHasAnimation = true;
-
+        float rotationValue;
+        int repeatCount;
         if (mInterpolator == null) {
             mInterpolator = new LinearInterpolator();
         }
 
-        if (mSpinAnimation == null) {
-            mSpinAnimation = ValueAnimator.ofFloat(0.1f, spinAmount);
-        } else {
-            mSpinAnimation.end();
+        View aniView;
+        switch(mHeaderType) {
+            case SPINNER_WITH_TEXT:
+            case SPINNER:
+            default:
+                aniView = mProgressSpinner;
+                rotationValue = 360f;
+                repeatCount = Animation.INFINITE;
+                break;
+            case ARROW:
+                aniView = mProgressArrow;
+                rotationValue = 180f;
+                repeatCount = 0;
+                break;
         }
 
+        mSpinAnimation = ObjectAnimator.ofFloat(aniView, "rotation", 0.0f, rotationValue);
         mSpinAnimation.setRepeatMode(AlphaAnimation.RESTART);
-        mSpinAnimation.setRepeatCount(Animation.INFINITE);
-        mSpinAnimation.setDuration(4000);
+        mSpinAnimation.setRepeatCount(repeatCount);
+        mSpinAnimation.setDuration(1000);
         mSpinAnimation.setInterpolator(mInterpolator);
     }
 
-    public void start() {
+    public void start(boolean reverse) {
         mAnimationRunning = true;
+        if(mSpinAnimation != null && mSpinAnimation.isRunning()) {
+            return; // Don't keep starting!
+        }
+        initAnimation();
 
-        if(hasSpinnerAndNotNull(mHeaderType)) {
-            if(mProgressSpinner.getIndeterminateDrawable() != null &&
-                    mProgressSpinner.getIndeterminateDrawable() instanceof LayerDrawable) {
-                // TODO STUB! (Will eval at later time)
-            }
-            if(mProgressSpinner.getProgressDrawable() instanceof Animatable) {
-                // TODO STUB! (Will eval at later time)
-            }
+        if(!mSpinAnimation.isRunning()) {
+            mSpinAnimation.setCurrentPlayTime(0);
+            if(reverse)
+                mSpinAnimation.reverse();
+            else
+                mSpinAnimation.start();
         }
         ViewCompat.postInvalidateOnAnimation(mParent);
     }
@@ -94,6 +106,8 @@ public final class SwipeHeaderView {
         if(hasSpinnerAndNotNull(mHeaderType)) {
             mProgressSpinner.setIndeterminate(false);
         }
+        mSpinAnimation.end();
+        mSpinAnimation.setCurrentPlayTime(0);
     }
 
     public static enum SwipeHeaderType {
@@ -164,7 +178,7 @@ public final class SwipeHeaderView {
                         break;
                     case ARROW:
                         mProgressArrow = (ImageView)mRefreshHeader.findViewById(R.id.view_progress_arrow);
-                        ViewCompat.setRotation(mProgressArrow, 180.1f);
+                        ViewCompat.setRotation(mProgressArrow, 179);
                         break;
                 }
                 initAnimation();
@@ -189,8 +203,22 @@ public final class SwipeHeaderView {
         if(hasSpinnerAndNotNull(mHeaderType)) {
             ViewCompat.setRotation(mProgressSpinner, triggerPercentage * 360);
         } else if(hasArrowAndNotNull(mHeaderType)) {
-            if(mTriggerPercentage >= .50 && mProgressArrow.getRotation() == 180.1f) {
-                mAnimationRunning = true;
+            if(mTriggerPercentage > .50
+                    && !mAllowRefresh) {
+                mAllowRefresh = true;
+                if(mSpinAnimation != null && mSpinAnimation.isRunning()) {
+                    mSpinAnimation.reverse();
+                } else {
+                    start(true);
+                }
+            } else if(mTriggerPercentage < .50
+                    && mAllowRefresh){
+                mAllowRefresh = false;
+                if(mSpinAnimation != null && mSpinAnimation.isRunning()) {
+                    mSpinAnimation.reverse();
+                } else {
+                    start(false);
+                }
             }
         }
     }
@@ -210,24 +238,9 @@ public final class SwipeHeaderView {
             rect.set(mBounds.left, mBounds.top, mBounds.right, mHeaderOffset);
 
             if (mAnimationRunning) {
-                float scale = (Float)mSpinAnimation.getAnimatedValue();
-                if(hasSpinnerAndNotNull(mHeaderType)) {
-                    ViewCompat.setRotation(mProgressSpinner, scale * MAX_LEVEL);
-                } else if(hasArrowAndNotNull(mHeaderType)) {
-                    Log.d("SwipeView", "getRotation() : " + mProgressArrow.getRotation());
-                    if(mProgressArrow.getRotation() <= 0) {
-                        ViewCompat.setRotation(mProgressArrow, 0);
-                        mAnimationRunning = false;
-                        initAnimation();
-                    } else if(mProgressArrow.getRotation() > 180) {
-                        ViewCompat.setRotation(mProgressArrow, 180);
-                        mAnimationRunning = false;
-                        initAnimation();
-                    } else {
-                        Log.d("SwipeView", "setRotation: " + (scale * 180));
-                        ViewCompat.setRotation(mProgressArrow, scale * 180);
-                    }
-                }
+                float scale = (Float)mSpinAnimation.getAnimatedValue("rotation");
+                com.nineoldandroids.view.ViewHelper.setRotation(
+                        (View)((ObjectAnimator)mSpinAnimation).getTarget(), scale);
 
                 ViewCompat.postInvalidateOnAnimation(mParent);
                 ViewCompat.postInvalidateOnAnimation(mRefreshHeader);
@@ -285,5 +298,9 @@ public final class SwipeHeaderView {
 
     public boolean allowOverscroll() {
         return mHeaderType.isArrow();
+    }
+
+    public boolean allowRefresh() {
+        return mAllowRefresh;
     }
 }

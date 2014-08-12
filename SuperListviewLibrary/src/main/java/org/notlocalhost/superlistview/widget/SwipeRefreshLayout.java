@@ -88,6 +88,8 @@ public class SwipeRefreshLayout extends ViewGroup {
     private final DecelerateInterpolator mDecelerateInterpolator;
     private final AccelerateInterpolator mAccelerateInterpolator;
 
+    private boolean canRefresh = false;
+
     private static final int[] LAYOUT_ATTRS = new int[] {
             android.R.attr.enabled
     };
@@ -266,7 +268,7 @@ public class SwipeRefreshLayout extends ViewGroup {
             mRefreshing = refreshing;
             if (mRefreshing) {
                 mProgressBar.start();
-                mHeaderView.start();
+                mHeaderView.start(false);
             } else {
                 mProgressBar.stop();
                 mHeaderView.stop();
@@ -426,7 +428,7 @@ public class SwipeRefreshLayout extends ViewGroup {
                     if (yDiff > mTouchSlop) {
                         // User velocity passed min velocity; trigger a refresh
                         if (yDiff > mDistanceToTriggerSync
-                                && !(mHeaderView != null ? mHeaderView.allowOverscroll() : false)) {
+                                && !(mHeaderView != null && mHeaderView.allowOverscroll())) {
                             // User movement passed distance; trigger a refresh
                             startRefresh();
                             handled = true;
@@ -457,6 +459,11 @@ public class SwipeRefreshLayout extends ViewGroup {
                 }
                 break;
             case MotionEvent.ACTION_UP:
+                if(mHeaderView != null && mHeaderView.allowRefresh()
+                        && mDownEvent != null && !mReturningToStart) {
+                    startRefresh();
+                    handled = true;
+                }
             case MotionEvent.ACTION_CANCEL:
                 if (mDownEvent != null) {
                     mDownEvent.recycle();
