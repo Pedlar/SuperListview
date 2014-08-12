@@ -43,6 +43,7 @@ public final class SwipeHeaderView {
     private ProgressBar mProgressSpinner;
     private TextView mProgressSpinnerTextView;
     private ImageView mProgressArrow;
+    private TextView mProgressArrowTextView;
 
     private SwipeHeaderType mHeaderType = SwipeHeaderType.SPINNER;
 
@@ -57,6 +58,7 @@ public final class SwipeHeaderView {
     private void initAnimation() {
         float rotationValue;
         int repeatCount;
+        int duration;
         if (mInterpolator == null) {
             mInterpolator = new LinearInterpolator();
         }
@@ -69,22 +71,30 @@ public final class SwipeHeaderView {
                 aniView = mProgressSpinner;
                 rotationValue = 360f;
                 repeatCount = Animation.INFINITE;
+                duration = 1000;
                 break;
             case ARROW:
                 aniView = mProgressArrow;
                 rotationValue = 180f;
                 repeatCount = 0;
+                duration = 200;
                 break;
         }
 
         mSpinAnimation = ObjectAnimator.ofFloat(aniView, "rotation", 0.0f, rotationValue);
         mSpinAnimation.setRepeatMode(AlphaAnimation.RESTART);
         mSpinAnimation.setRepeatCount(repeatCount);
-        mSpinAnimation.setDuration(1000);
+        mSpinAnimation.setDuration(duration);
         mSpinAnimation.setInterpolator(mInterpolator);
     }
 
     public void start(boolean reverse) {
+        start(reverse, true);
+    }
+    private void start(boolean reverse, boolean fromLayout) {
+        if(fromLayout && mHeaderType.isArrow()) {
+            return; // no-op on layout calls is we're the arrow!
+        }
         mAnimationRunning = true;
         if(mSpinAnimation != null && mSpinAnimation.isRunning()) {
             return; // Don't keep starting!
@@ -105,6 +115,9 @@ public final class SwipeHeaderView {
         mAnimationRunning = false;
         if(hasSpinnerAndNotNull(mHeaderType)) {
             mProgressSpinner.setIndeterminate(false);
+        } else if(hasArrowAndNotNull(mHeaderType)) {
+            mProgressArrow.setRotation(180);
+            mAllowRefresh = false;
         }
         mSpinAnimation.end();
         mSpinAnimation.setCurrentPlayTime(0);
@@ -114,6 +127,7 @@ public final class SwipeHeaderView {
         SPINNER(true, false, false),
         SPINNER_WITH_TEXT(true, true, false),
         ARROW(false, false, true),
+        ARROW_WITH_TEXT(false, false, true),
         DEFAULT(false, false, false);
         SwipeHeaderType(boolean spinner, boolean text, boolean arrow) {
             this.isSpinner = spinner;
@@ -161,6 +175,9 @@ public final class SwipeHeaderView {
             case ARROW:
                 layoutId = R.layout.view_progress_header_arrow;
                 break;
+            case ARROW_WITH_TEXT:
+                layoutId = R.layout.view_progress_header_arrow;
+                break;
             case DEFAULT:
                 layoutId = -1;
                 break;
@@ -176,6 +193,8 @@ public final class SwipeHeaderView {
                     case SPINNER:
                         mProgressSpinner = (ProgressBar) mRefreshHeader.findViewById(R.id.view_progress_spinner);
                         break;
+                    case ARROW_WITH_TEXT:
+                        mProgressArrowTextView = (TextView) mRefreshHeader.findViewById(R.id.view_progress_text);
                     case ARROW:
                         mProgressArrow = (ImageView)mRefreshHeader.findViewById(R.id.view_progress_arrow);
                         ViewCompat.setRotation(mProgressArrow, 179);
@@ -209,7 +228,10 @@ public final class SwipeHeaderView {
                 if(mSpinAnimation != null && mSpinAnimation.isRunning()) {
                     mSpinAnimation.reverse();
                 } else {
-                    start(true);
+                    start(true, false);
+                }
+                if(mProgressSpinnerTextView != null) {
+                    mProgressSpinnerTextView.setText("Pull to refresh..");
                 }
             } else if(mTriggerPercentage < .50
                     && mAllowRefresh){
@@ -217,13 +239,14 @@ public final class SwipeHeaderView {
                 if(mSpinAnimation != null && mSpinAnimation.isRunning()) {
                     mSpinAnimation.reverse();
                 } else {
-                    start(false);
+                    start(false, false);
+                }
+                if(mProgressSpinnerTextView != null) {
+                    mProgressSpinnerTextView.setText("Release to refresh..");
                 }
             }
         }
     }
-
-    private static final int MAX_LEVEL = (360 * 5);
 
     void draw(Canvas canvas) {
         if(mRefreshHeader != null) {

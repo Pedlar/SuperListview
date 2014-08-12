@@ -461,6 +461,7 @@ public class SwipeRefreshLayout extends ViewGroup {
             case MotionEvent.ACTION_UP:
                 if(mHeaderView != null && mHeaderView.allowRefresh()
                         && mDownEvent != null && !mReturningToStart) {
+                    mHeaderView.stop();
                     startRefresh();
                     handled = true;
                 }
